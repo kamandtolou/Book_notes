@@ -1,0 +1,41 @@
+.Welcome{
+    text-align: center;
+}
+
+.text{
+    font-size: 1.5rem !important;
+}
+.abook{
+    position: relative;
+}
+
+.review{
+    font-size: 1.5rem;
+    margin-top: 50px;
+}
+
+.star{
+    color: gold;
+    font-size: 30px;
+}
+
+.starclass{
+    font-size: 30px;
+}
+
+.create{
+    background-color: rgb(194, 164, 125);
+}
+
+
+
+.text{
+    text-align: center;
+}
+
+.card{
+    border-radius: 5% !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    background-color: beige !important;
+    
+}
