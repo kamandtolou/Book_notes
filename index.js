@@ -2,20 +2,22 @@ import express from "express";
 import pg from "pg";
 import bodyParser from "body-parser";
 import axios from "axios";
+import env from "dotenv";
 
 const app=express();
 const port=3000;
+env.config();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-let reviews=[];
+
 
 const db=new pg.Client({
-    user:process.env.USERNAME,
-    host:process.env.HOST,
-    database:process.env.DATABASE,
-    password:process.env.PASSWORD,
-    port:process.env.PORT,
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DATABASE,
+    password: process.env.PG_PASSWORD,
+    port: process.env.PG_PORT,
 });
 
 db.connect();
@@ -24,14 +26,9 @@ app.get("/",async (req,res)=>{
     try{
         const result= await db.query("SELECT * FROM reviews");
         const data=result.rows;
-       
-        data.forEach(review => {
-            reviews.push(review);
-            review.created_at=formatDate(review.created_at)
-        });
     
         res.render("index.ejs",{
-            reviews:reviews
+            reviews:data
         });
     }
     catch(err){
@@ -45,12 +42,14 @@ app.post("/add",async (req,res)=>{
          const title=req.body.title;
          const rating=req.body.rating;
          const review=req.body.review;
+         const today = new Date();
+         const date=formatDate(today);
          const isbnUrl=`https://openlibrary.org/search.json?title=${encodeURIComponent(title)}`;
          const isbnResponse=await axios.get(isbnUrl);
          if (isbnResponse.data.docs && isbnResponse.data.docs.length > 0){
          const isbn = isbnResponse.data.docs[0].isbn ? isbnResponse.data.docs[0].isbn[0] : null;
          const coverUrl = isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg` : "/default-cover.jpg";
-         db.query("INSERT INTO reviews(book_title,book_cover_url,review,rating,created_at) VALUES ($1,$2,$3,$4,$5)",[title,coverUrl,review,rating]);
+         db.query("INSERT INTO reviews(book_title,book_cover_url,review,rating,created_at) VALUES ($1,$2,$3,$4,$5)",[title,coverUrl,review,rating,date]);
          res.redirect("/");
          } else{
             console.log("no books found for the given title!");
@@ -72,15 +71,20 @@ app.get("/create", (req, res) => {
    
 });
 
-app.get("/edit/:id",(req,res)=>{
+app.get("/edit/:id",async (req,res)=>{
     const today = new Date();
     const date=formatDate(today);
     const reviewId = parseInt(req.params.id);
-    const review = reviews[reviewId];
-    if(review){
+    const theReview=await db.query("SELECT * FROM reviews WHERE id=$1",[reviewId]);
+    const result = theReview.rows[0];
+    if(result){
         res.render("edit.ejs",{
-            date:date,
-            review:review,
+            created_at:result.created_at,
+            review:result.review,
+            rating:result.rating,
+            title:result.book_title,
+            reviewId : reviewId,
+
         });
     }
     else{
@@ -105,7 +109,6 @@ app.post("/delete/:id",async(req,res)=>{
     try{
     const thisId=req.params.id;
     await db.query("DELETE FROM reviews WHERE id=($1)",[thisId]);
-    reviews.splice(thisId-1,1);
     res.redirect("/");
     }
     catch(err){

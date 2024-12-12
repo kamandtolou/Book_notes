@@ -19,18 +19,18 @@
                 <div class="card p-4 ">
             
                    
-                    <form action="/update/<%=review.id%>" method="post">
+                    <form action="/update/<%=reviewId%>" method="post">
 
-                        <input type="hidden" name="updatedId" value="<%= review.id %>">
+                        <input type="hidden" name="updatedId" value="<%= reviewId %>">
 
                         <div class="mb-3">
                             <label for="title" class="form-label">Title</label>
-                            <input type="text" class="form-control" id="title" name="title" placeholder="<%= review.book_title %>" readonly>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="<%= title %>" readonly>
                         </div>
 
                         <div class="mb-3">
                             <label for="review" class="form-label">Review</label>
-                            <textarea class="form-control" id="review" rows="4" name="updatedReview" placeholder="<%= review.review %>"><%= review.review %></textarea>
+                            <textarea class="form-control" id="review" rows="4" name="updatedReview" ><%= review %></textarea>
                         </div>
 
                         <div class="rating-creat mb-3"> 
@@ -46,7 +46,7 @@
 
                             <div class="mb-3">
                                 <label for="date" class="form-label">created at: </label>
-                                <input type="text" class="form-control" id="date" name="date" value="<%= date %>"  placeholder="<%= date %>" readonly>
+                                <input type="text" class="form-control" id="date" name="created_at" value="<%= created_at %>"  placeholder="<%= created_at %>" readonly>
                             </div>
 
 
